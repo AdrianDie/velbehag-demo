@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Velbehag — live demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{ --ink:#221a10; --muted:#8c8175; --line:#e8e2d8; --bg:#f6f5f3; --brand:#4b3524; --beige:#c8a884; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Montserrat",system-ui,sans-serif;
+      color:var(--ink); background:var(--bg); line-height:1.6;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:24px; -webkit-font-smoothing:antialiased;
+    }
+    .card{
+      background:#ffffff; border:1px solid var(--line); border-radius:10px;
+      max-width:440px; width:100%; padding:44px 40px; text-align:center;
+    }
+    .kicker{
+      font-family:"SF Mono","JetBrains Mono",monospace; font-size:10.5px;
+      letter-spacing:0.16em; text-transform:uppercase; color:#c4baab; margin-bottom:18px;
+    }
+    h1{
+      font-family:"Playfair Display",serif; font-weight:600; font-size:32px;
+      letter-spacing:0.01em; line-height:1.1; margin-bottom:6px;
+    }
+    .sub{font-size:15px; color:var(--muted); margin-bottom:26px}
+    .note{
+      text-align:left; font-size:13.5px; color:var(--muted); background:var(--bg);
+      border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:26px;
+    }
+    .note b{color:var(--ink)}
+    button{
+      font-family:inherit; font-size:14px; font-weight:600; letter-spacing:0.08em;
+      text-transform:uppercase; cursor:pointer;
+      background:var(--brand); color:#fff; border:none; border-radius:6px;
+      padding:15px 28px; width:100%; transition:transform .15s, filter .15s;
+    }
+    button:hover{filter:brightness(1.12)}
+    button:active{transform:scale(.98)}
+    button:disabled{opacity:.7; cursor:default}
+    .foot{margin-top:26px; font-size:11px; color:#c4baab}
+
+    /* --- Oppvarmings-overlay (popup) --- */
+    .overlay{
+      position:fixed; inset:0; z-index:50; display:none;
+      align-items:center; justify-content:center; padding:24px;
+      background:rgba(34,26,16,.42); backdrop-filter:blur(3px);
+    }
+    .overlay.show{display:flex}
+    .modal{
+      background:#fff; border:1px solid var(--line); border-radius:12px;
+      max-width:360px; width:100%; padding:40px 34px 34px; text-align:center;
+      box-shadow:0 24px 60px -18px rgba(0,0,0,.35);
+      animation:pop .25s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+    .ring{
+      position:relative; width:118px; height:118px; margin:0 auto 22px;
+      border-radius:50%;
+      background:conic-gradient(var(--brand) var(--deg,0deg), var(--line) 0deg);
+      transition:background .5s linear;
+    }
+    .ring::after{
+      content:""; position:absolute; inset:9px; border-radius:50%; background:#fff;
+    }
+    .ring .num{
+      position:absolute; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; z-index:1;
+    }
+    .ring .num b{
+      font-family:"Playfair Display",serif; font-size:38px; font-weight:600;
+      line-height:1; color:var(--ink);
+    }
+    .ring .num span{
+      font-size:10px; letter-spacing:0.16em; text-transform:uppercase;
+      color:var(--muted); margin-top:4px;
+    }
+    .ring.done{ background:var(--brand); }
+    .ring.done .check{
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:1; color:#fff;
+    }
+    .ring.done .check svg{width:44px;height:44px}
+    .m-title{font-size:16px; font-weight:600; margin-bottom:6px}
+    .m-status{font-size:13.5px; color:var(--muted); min-height:20px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="kicker">Dietrichs Marketing · live demo</div>
+    <h1>Velbehag</h1>
+    <p class="sub">AI-kundeservice trent på deres egen klinikk.</p>
+
+    <div class="note">
+      Dette er en <b>live demo</b>. For å holde kostnadene nede <b>sover den når den
+      ikke brukes</b> og våkner ved behov — første oppstart tar derfor rundt
+      <b>15–20 sekunder</b>. Etterpå svarer den umiddelbart.
+    </div>
+
+    <button id="startBtn">Start demoen</button>
+
+    <div class="foot">Levert av Dietrichs Marketing</div>
+  </div>
+
+  <!-- Oppvarmings-popup -->
+  <div class="overlay" id="overlay" role="dialog" aria-live="polite" aria-label="Starter demoen">
+    <div class="modal">
+      <div class="ring" id="ring">
+        <div class="num" id="num"><b id="count">20</b><span>sekunder</span></div>
+        <div class="check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+      </div>
+      <div class="m-title" id="mTitle">Varmer opp demo-serveren</div>
+      <div class="m-status" id="mStatus">Vekker AI-en fra dvale…</div>
+    </div>
+  </div>
+
+  <script>
+    // Chat-hjernen (widget-iframe + API) kjører på Cloud Run (scale-to-zero).
+    // Selve demo-siden ligger her på GitHub Pages under ./demo/.
+    var CHAT_ORIGIN = "https://dm-b2j3i22sna-lz.a.run.app";
+    var DEMO_URL = "./demo/";
+    var EST = 20;          // forventet kaldstart (sek) — kun for nedtellingen
+    var MAX_WAIT = 30000;  // hard sikkerhetsnett (ms)
+
+    var btn = document.getElementById("startBtn");
+    var overlay = document.getElementById("overlay");
+    var ring = document.getElementById("ring");
+    var num = document.getElementById("num");
+    var count = document.getElementById("count");
+    var mStatus = document.getElementById("mStatus");
+    var mTitle = document.getElementById("mTitle");
+
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      btn.textContent = "Starter…";
+      overlay.classList.add("show");
+
+      var t0 = Date.now();
+      var done = false;
+      var ready = false;
+
+      function go() { if (!done) { done = true; window.location.href = DEMO_URL; } }
+
+      // Tikk hvert 100ms: fyll ringen etter forløpt tid, tell ned sekunder.
+      var tick = setInterval(function () {
+        if (ready) return;
+        var elapsed = (Date.now() - t0) / 1000;
+        var frac = Math.min(elapsed / EST, 0.97);          // hold litt igjen til "ready"
+        ring.style.setProperty("--deg", (frac * 360) + "deg");
+        var remaining = Math.max(EST - Math.floor(elapsed), 1);
+        count.textContent = remaining;
+        if (elapsed >= EST) {
+          mStatus.textContent = "Nesten klar — vent litt…";
+        } else if (elapsed > EST * 0.5) {
+          mStatus.textContent = "Laster kunnskapsbasen…";
+        }
+      }, 100);
+
+      function finish() {
+        if (ready) return;
+        ready = true;
+        clearInterval(tick);
+        ring.style.setProperty("--deg", "360deg");
+        ring.classList.add("done");
+        mTitle.textContent = "Klar";
+        mStatus.textContent = "Åpner demoen…";
+        setTimeout(go, 650);
+      }
+
+      // Varm opp Cloud Run. no-cors: vi trenger ikke lese svaret, bare vite at
+      // serveren har svart (da er init_app ferdig og demoen er varm).
+      fetch(CHAT_ORIGIN + "/health", { mode: "no-cors", cache: "no-store" })
+        .then(finish)
+        .catch(finish);   // selv ved nettverksfeil: gå videre, iframen prøver igjen
+
+      // Sikkerhetsnett hvis /health aldri svarer.
+      setTimeout(finish, MAX_WAIT);
+    });
+  </script>
+</body>
+</html>
