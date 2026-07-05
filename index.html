@@ -97,9 +97,12 @@
     <p class="sub">AI-kundeservice trent på deres egen klinikk.</p>
 
     <div class="note">
-      Dette er en <b>live demo</b>. For å holde kostnadene nede <b>sover den når den
-      ikke brukes</b> og våkner ved behov — første oppstart tar derfor rundt
-      <b>15–20 sekunder</b>. Etterpå svarer den umiddelbart.
+      Dette er en <b>live demo</b>. For å slippe å betale for en server som står og
+      går døgnet rundt, <b>sover den når ingen bruker den</b> og varmes først opp
+      når du trykker start — første oppstart tar derfor rundt <b>40 sekunder</b>
+      mens AI-en og kunnskapsbasen lastes inn. Etterpå svarer den umiddelbart.
+      Denne driftsmåten holder kostnadene våre lave, noe vi gir videre til dere
+      som en <b>bedre pris</b>.
     </div>
 
     <button id="startBtn">Start demoen</button>
@@ -111,7 +114,7 @@
   <div class="overlay" id="overlay" role="dialog" aria-live="polite" aria-label="Starter demoen">
     <div class="modal">
       <div class="ring" id="ring">
-        <div class="num" id="num"><b id="count">20</b><span>sekunder</span></div>
+        <div class="num" id="num"><b id="count">40</b><span>sekunder</span></div>
         <div class="check" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
@@ -126,8 +129,8 @@
     // Selve demo-siden ligger her på GitHub Pages under ./demo/.
     var CHAT_ORIGIN = "https://dm-z4avsrmsiq-lz.a.run.app";
     var DEMO_URL = "./demo/";
-    var EST = 20;          // forventet kaldstart (sek) — kun for nedtellingen
-    var MAX_WAIT = 30000;  // hard sikkerhetsnett (ms)
+    var EST = 40;          // forventet kaldstart (sek) — kun for nedtellingen
+    var MAX_WAIT = 60000;  // hard sikkerhetsnett (ms)
 
     var btn = document.getElementById("startBtn");
     var overlay = document.getElementById("overlay");
